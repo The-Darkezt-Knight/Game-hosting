@@ -1,0 +1,813 @@
+<!doctype html>
+
+<html class="dark" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>BSIT-3D</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-tertiary-container": "#2f3949",
+              primary: "#4edea3",
+              "primary-fixed": "#6ffbbe",
+              "tertiary-fixed": "#d9e3f7",
+              "primary-container": "#10b981",
+              "on-tertiary-fixed": "#121c2a",
+              "inverse-primary": "#006c49",
+              "on-secondary-fixed": "#121c2a",
+              "surface-tint": "#4edea3",
+              secondary: "#bdc7d9",
+              tertiary: "#bdc7db",
+              "on-tertiary-fixed-variant": "#3d4757",
+              "primary-fixed-dim": "#4edea3",
+              "surface-container-highest": "#353534",
+              "on-primary-container": "#00422b",
+              "tertiary-fixed-dim": "#bdc7db",
+              "on-error-container": "#ffdad6",
+              "surface-variant": "#353534",
+              "secondary-fixed-dim": "#bdc7d9",
+              "on-surface": "#e5e2e1",
+              outline: "#86948a",
+              "outline-variant": "#3c4a42",
+              "surface-container-high": "#2a2a2a",
+              "surface-dim": "#131313",
+              "on-background": "#e5e2e1",
+              "surface-container-lowest": "#0e0e0e",
+              "on-secondary-container": "#afb9cb",
+              "secondary-container": "#404a59",
+              "on-error": "#690005",
+              "tertiary-container": "#99a3b6",
+              "on-secondary-fixed-variant": "#3d4756",
+              "surface-container-low": "#1c1b1b",
+              "inverse-on-surface": "#313030",
+              "on-secondary": "#27313f",
+              "secondary-fixed": "#d9e3f6",
+              surface: "#131313",
+              background: "#131313",
+              "on-tertiary": "#273140",
+              "inverse-surface": "#e5e2e1",
+              "on-primary-fixed-variant": "#005236",
+              "error-container": "#93000a",
+              error: "#ffb4ab",
+              "surface-container": "#201f1f",
+              "on-surface-variant": "#bbcabf",
+              "on-primary": "#003824",
+              "on-primary-fixed": "#002113",
+              "surface-bright": "#393939",
+            },
+            borderRadius: {
+              DEFAULT: "0.25rem",
+              lg: "0.5rem",
+              xl: "0.75rem",
+              full: "9999px",
+            },
+            spacing: {
+              "container-max": "1440px",
+              "margin-desktop": "40px",
+              unit: "8px",
+              "margin-mobile": "16px",
+              gutter: "24px",
+            },
+            fontFamily: {
+              "headline-md": ["Montserrat"],
+              "label-sm": ["Inter"],
+              "body-lg": ["Inter"],
+              "headline-lg-mobile": ["Montserrat"],
+              "headline-lg": ["Montserrat"],
+              "display-lg": ["Montserrat"],
+              "body-md": ["Inter"],
+            },
+            fontSize: {
+              "headline-md": ["24px", { lineHeight: "1.3", fontWeight: "600" }],
+              "label-sm": [
+                "12px",
+                { lineHeight: "1", letterSpacing: "0.05em", fontWeight: "600" },
+              ],
+              "body-lg": ["18px", { lineHeight: "1.6", fontWeight: "400" }],
+              "headline-lg-mobile": [
+                "24px",
+                { lineHeight: "1.2", fontWeight: "700" },
+              ],
+              "headline-lg": ["32px", { lineHeight: "1.2", fontWeight: "700" }],
+              "display-lg": [
+                "48px",
+                {
+                  lineHeight: "1.1",
+                  letterSpacing: "-0.02em",
+                  fontWeight: "800",
+                },
+              ],
+              "body-md": ["16px", { lineHeight: "1.5", fontWeight: "400" }],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      body {
+        background-color: #121212;
+        color: #e5e2e1;
+      }
+      .emerald-glow:hover {
+        box-shadow: 0 0 20px 5px rgba(16, 185, 129, 0.2);
+      }
+      .material-symbols-outlined {
+        font-variation-settings:
+          "FILL" 0,
+          "wght" 400,
+          "GRAD" 0,
+          "opsz" 24;
+      }
+      .perspective-grid {
+        background-image:
+          linear-gradient(to right, #374151 1px, transparent 1px),
+          linear-gradient(to bottom, #374151 1px, transparent 1px);
+        background-size: 40px 40px;
+        mask-image: linear-gradient(to bottom, transparent, black);
+      }
+
+      /* ===== Game Player Overlay ===== */
+      #game-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        background: #0a0a0a;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.35s;
+      }
+      #game-overlay.active {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      /* Top toolbar */
+      .game-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 48px;
+        padding: 0 16px;
+        background: linear-gradient(180deg, rgba(18,18,18,0.98) 0%, rgba(18,18,18,0.92) 100%);
+        border-bottom: 1px solid #3c4a42;
+        flex-shrink: 0;
+        z-index: 2;
+      }
+      .game-toolbar .toolbar-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .game-toolbar .toolbar-title {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+        font-size: 14px;
+        color: #e5e2e1;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+      .game-toolbar .toolbar-badge {
+        font-family: 'Inter', sans-serif;
+        font-size: 10px;
+        font-weight: 600;
+        padding: 2px 8px;
+        background: rgba(16, 185, 129, 0.15);
+        color: #4edea3;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        letter-spacing: 0.08em;
+      }
+      .game-toolbar .toolbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .game-toolbar .toolbar-btn {
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: none;
+        color: #bbcabf;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: all 0.2s;
+      }
+      .game-toolbar .toolbar-btn:hover {
+        background: rgba(78, 222, 163, 0.1);
+        color: #4edea3;
+      }
+      .game-toolbar .toolbar-btn.close-btn:hover {
+        background: rgba(255, 180, 171, 0.12);
+        color: #ffb4ab;
+      }
+
+      /* Iframe container */
+      .game-frame-container {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+      }
+      .game-frame-container iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+        display: block;
+      }
+
+      /* Loading state */
+      .game-loader {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: #0a0a0a;
+        z-index: 3;
+        transition: opacity 0.4s ease, visibility 0.4s;
+      }
+      .game-loader.hidden {
+        opacity: 0;
+        visibility: hidden;
+      }
+      .loader-spinner {
+        width: 48px;
+        height: 48px;
+        border: 3px solid #3c4a42;
+        border-top-color: #4edea3;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+      .loader-text {
+        margin-top: 16px;
+        font-family: 'Inter', sans-serif;
+        font-size: 13px;
+        color: #86948a;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+
+      /* Error state */
+      .game-error {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: #0a0a0a;
+        z-index: 4;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s, visibility 0.3s;
+      }
+      .game-error.active {
+        opacity: 1;
+        visibility: visible;
+      }
+      .game-error .error-icon {
+        font-size: 56px;
+        color: #ffb4ab;
+        margin-bottom: 16px;
+      }
+      .game-error .error-title {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+        font-size: 20px;
+        color: #e5e2e1;
+        margin-bottom: 8px;
+      }
+      .game-error .error-desc {
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        color: #86948a;
+        max-width: 420px;
+        text-align: center;
+        line-height: 1.6;
+        margin-bottom: 24px;
+      }
+      .game-error .error-btn {
+        padding: 12px 32px;
+        background: #10b981;
+        color: #003824;
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+        font-size: 14px;
+        border: none;
+        cursor: pointer;
+        letter-spacing: 0.04em;
+        transition: all 0.2s;
+      }
+      .game-error .error-btn:hover {
+        box-shadow: 0 0 20px 5px rgba(16, 185, 129, 0.25);
+        transform: scale(1.03);
+      }
+    </style>
+  </head>
+
+  <body class="font-body-md text-body-md overflow-x-hidden">
+    <!-- TopNavBar -->
+    <nav
+      class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-desktop h-16 bg-surface dark:bg-surface border-b border-outline-variant"
+    >
+      <div class="flex items-center gap-8">
+        <span class="font-headline-md text-headline-md font-bold text-primary"
+          >BSIT-3D</span
+        >
+        <div class="hidden md:flex gap-6 items-center">
+          <a
+            class="text-on-surface-variant font-medium hover:text-primary transition-colors duration-200"
+            href="/index.html"
+            >Library</a
+          >
+        </div>
+      </div>
+      <div class="flex items-center gap-6">
+        <div class="hidden md:flex items-center gap-4">
+          <span
+            class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors"
+            >notifications</span
+          >
+          <span
+            class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors"
+            >settings</span
+          >
+        </div>
+        <div
+          class="flex items-center gap-3 bg-surface-container px-3 py-1.5 rounded-sm border border-outline-variant cursor-pointer active:scale-95 transition-transform"
+        >
+          <span class="text-on-surface font-medium hidden sm:inline"
+            >Profile</span
+          >
+        </div>
+      </div>
+    </nav>
+
+    <main class="pt-16 min-h-screen">
+      <!-- Hero Section -->
+      <section class="relative w-full h-[716px] overflow-hidden">
+        <div
+          class="absolute inset-0 bg-gradient-to-t from-[#121212] via-transparent to-black/40 z-10"
+        ></div>
+        <img
+          class="w-full h-full object-cover"
+          data-alt="A cinematic wide-angle shot of a massive interstellar space battle between two futuristic fleets. Gigantic starships with glowing engine ports exchange beams of emerald green and sapphire blue energy against a backdrop of a swirling purple and cyan nebula. Debris and small starfighters are scattered throughout the scene, illuminated by the intense flashes of explosions. The lighting is high-contrast with deep shadows and luminous highlights, maintaining a tactical, high-performance dark-mode aesthetic."
+          src="/res/hero_image.png"
+        />
+        <!-- Floating Icon Overlay -->
+        <div
+          class="absolute bottom-0 left-0 px-margin-desktop z-20 translate-y-1/2 flex items-end gap-gutter"
+        >
+          <div class="relative group">
+            <div
+              class="absolute inset-0 bg-primary/20 blur-xl rounded-full group-hover:bg-primary/40 transition-all"
+            ></div>
+          </div>
+        </div>
+      </section>
+      <!-- Content Canvas -->
+      <section
+        class="mt-24 md:mt-32 px-margin-desktop grid grid-cols-12 gap-gutter pb-24"
+      >
+        <!-- Main Details -->
+        <div class="col-span-12 lg:col-span-8 flex flex-col gap-6">
+          <div>
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span
+                class="bg-surface-container text-label-sm font-label-sm px-3 py-1 text-primary border-l-2 border-primary"
+                >STRATEGY</span
+              >
+              <span
+                class="bg-surface-container text-label-sm font-label-sm px-3 py-1 text-on-surface-variant"
+                >SINGLE PLAYER</span
+              >
+              <span
+                class="bg-surface-container text-label-sm font-label-sm px-3 py-1 text-on-surface-variant"
+                >SCI-FI</span
+              >
+            </div>
+            <h1
+              class="font-display-lg text-display-lg text-on-surface tracking-tighter"
+            >
+              The Fixer
+            </h1>
+          </div>
+          <div class="prose prose-invert max-w-none">
+            <p
+              class="font-body-lg text-body-lg text-on-surface-variant leading-relaxed"
+            >
+              What if the very thing you thought you needed to save you is actually the one who will destroy everything? <br>
+              <span class="text-primary">Step into the mainframe as the ultimate digital medic
+                in The Fixer, a mind-bending puzzle-platformer that challenges you
+                to cure a corrupted cyberspace. Drawing deep inspiration from the
+                time-manipulating mechanics of classics like Braid, you must navigate
+                intricate, virus-infected labyrinths by rewinding your actions,
+                altering the flow of time, and solving complex spatial anomalies
+                to outsmart rogue malware. Armed with your trusty antivirus
+                blaster and the unique ability to undo your past mistakes,
+                you will need a perfect blend of platforming precision and
+                cerebral strategy to cleanse the code, piece the fragmented
+                system back together, and save the digital world from total
+                collapse.
+            </p>
+            <p
+              class="font-body-md text-body-md text-on-surface-variant/80 mt-4"
+            >
+              Experience low-latency competitive gameplay powered by Yearnet
+              infrastructure. Every decision ripples through the galaxy,
+              influencing the persistent economy and faction borders in a true
+              4X evolution.
+            </p>
+          </div>
+          <!-- Bento Grid Highlights -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+            <div
+              class="bg-surface-container p-6 border-l-2 border-secondary group hover:bg-surface-container-high transition-colors"
+            >
+              <span class="material-symbols-outlined text-secondary mb-2"
+                >groups</span
+              >
+              <h3 class="font-headline-md text-headline-md mb-1">50k+</h3>
+              <p class="text-label-sm text-on-surface-variant">ACTIVE PILOTS</p>
+            </div>
+            <div
+              class="bg-surface-container p-6 border-l-2 border-outline group hover:bg-surface-container-high transition-colors"
+            >
+              <span class="material-symbols-outlined text-outline mb-2"
+                >memory</span
+              >
+              <h3 class="font-headline-md text-headline-md mb-1">
+                Hand crafted
+              </h3>
+              <p class="text-label-sm text-on-surface-variant">
+                PROCEDURAL MAPS
+              </p>
+            </div>
+          </div>
+        </div>
+        <!-- Sidebar Actions -->
+        <div class="col-span-12 lg:col-span-4">
+          <div
+            class="bg-surface-container p- gutter flex flex-col gap-6 sticky top-24 border border-outline-variant shadow-2xl"
+          >
+            <div
+              class="aspect-video w-full bg-surface-container-lowest relative group cursor-pointer overflow-hidden"
+            >
+              <img
+                class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                data-alt="A high-detail screenshot of the Nebula Vanguard ship customization hangar. A massive dreadnought is suspended in a docking bay with emerald green holographic displays surrounding its hull. Sparking welding drones and small maintenance craft orbit the vessel. The environment is dark, metallic, and industrial, emphasizing the technical depth of the game's mechanics."
+                src="/res/The_fixer_app_icon.jpg"
+              />
+              <div
+                class="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/20 transition-all"
+              >
+                <span class="material-symbols-outlined text-primary text-5xl"
+                  >play_circle</span
+                >
+              </div>
+            </div>
+            <div class="px-gutter pb-gutter space-y-4">
+              <div class="flex justify-between items-center">
+                <span class="text-on-surface-variant font-medium"
+                  >System Status</span
+                >
+                <span
+                  class="flex items-center gap-1.5 text-primary text-label-sm"
+                >
+                  <span
+                    class="w-2 h-2 bg-primary rounded-full animate-pulse"
+                  ></span>
+                  OPERATIONAL
+                </span>
+              </div>
+              <button
+                id="play-btn"
+                onclick="openGamePlayer('https://thefixer123.netlify.app/', 'The Fixer')"
+                class="w-full bg-primary-container text-on-primary py-4 font-bold text-headline-md emerald-glow transition-all active:scale-95 flex items-center justify-center gap-2"
+              >
+                <span
+                  class="material-symbols-outlined"
+                  style="font-variation-settings: &quot;FILL&quot; 1"
+                  >play_arrow</span
+                >
+                PLAY
+              </button>
+              <button
+                class="w-full border-2 border-secondary-container text-on-surface py-4 font-bold hover:border-on-surface transition-colors active:scale-95"
+              >
+                ADD TO LIBRARY
+              </button>
+              <div
+                class="pt-4 border-t border-outline-variant flex flex-col gap-3"
+              >
+                <div class="flex justify-between text-label-sm">
+                  <span class="text-on-surface-variant">Publisher</span>
+                  <span class="text-on-surface">Yearnet</span>
+                </div>
+                <div class="flex justify-between text-label-sm">
+                  <span class="text-on-surface-variant">Release Date</span>
+                  <span class="text-on-surface">May 28, 2026</span>
+                </div>
+                <div class="flex justify-between text-label-sm">
+                  <span class="text-on-surface-variant">File Size</span>
+                  <span class="text-on-surface">Undetermined</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Media Section (Asymmetric) -->
+      <section class="bg-surface-container-low py-24 overflow-hidden relative">
+        <div class="absolute inset-0 perspective-grid opacity-20"></div>
+        <div class="px-margin-desktop relative z-10">
+          <h2
+            class="font-headline-lg text-headline-lg mb-12 flex items-center gap-4"
+          >
+            <span class="w-12 h-[2px] bg-primary"></span>
+            GALLERY
+          </h2>
+          <div class="flex flex-col md:flex-row gap-6 h-[600px]">
+            <div
+              class="flex-1 h-full bg-surface-container group overflow-hidden border border-outline-variant"
+            >
+              <img
+                class="w-full h-full object-fill group-hover:scale-110 transition-transform duration-700"
+                data-alt="A stunning view from a ship's cockpit orbiting a gaseous giant planet with glowing rings. The console is illuminated with emerald green and cyan digital readouts, reflecting onto the curved glass. The vastness of space is filled with stars and a distant nebula. High-performance gaming aesthetic with ultra-realistic textures and cinematic lighting."
+                src="/res/home_screen_1.png"
+              />
+            </div>
+            <div class="flex-none w-full md:w-1/3 flex flex-col gap-6">
+              <div
+                class="flex-1 bg-surface-container group overflow-hidden border border-outline-variant"
+              >
+                <img
+                  class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  data-alt="A tactical data map display showing a cluster of star systems in a 3D grid projection. The nodes are connected by glowing trade routes and military frontlines in emerald green. The style is abstract and data-heavy, representing the deep strategy layers of Nebula Vanguard. Technical HUD feel with low-latency responsiveness."
+                  src="/res/powered_state.png"
+                />
+              </div>
+              <div
+                class="flex-1 bg-surface-container group overflow-hidden border border-outline-variant"
+              >
+                <img
+                  class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  data-alt="An intense close-up of a spaceship's engine thrusters igniting with a brilliant emerald green flame. Particles of blue ionized gas trail behind the vessel as it prepares for a hyperspace jump. The lighting is extremely bright and focused, set against the pitch-black void of deep space. High-contrast tactical gaming visual style."
+                  src="/res/powerless_state.png"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== Fullscreen Game Player Overlay ===== -->
+      <div id="game-overlay">
+        <div class="game-toolbar">
+          <div class="toolbar-left">
+            <span class="material-symbols-outlined" style="color:#4edea3;font-size:20px;font-variation-settings:'FILL' 1">sports_esports</span>
+            <span class="toolbar-title" id="game-title">Game</span>
+            <span class="toolbar-badge">PLAYING</span>
+          </div>
+          <div class="toolbar-actions">
+            <button class="toolbar-btn" onclick="toggleFullscreen()" title="Toggle Fullscreen">
+              <span class="material-symbols-outlined" style="font-size:20px" id="fs-icon">fullscreen</span>
+            </button>
+            <button class="toolbar-btn" onclick="openExternal()" title="Open in New Tab">
+              <span class="material-symbols-outlined" style="font-size:20px">open_in_new</span>
+            </button>
+            <button class="toolbar-btn close-btn" onclick="closeGamePlayer()" title="Close">
+              <span class="material-symbols-outlined" style="font-size:20px">close</span>
+            </button>
+          </div>
+        </div>
+        <div class="game-frame-container">
+          <div class="game-loader" id="game-loader">
+            <div class="loader-spinner"></div>
+            <span class="loader-text">Loading game…</span>
+          </div>
+          <div class="game-error" id="game-error">
+            <span class="material-symbols-outlined error-icon">shield</span>
+            <div class="error-title">Embed Blocked</div>
+            <div class="error-desc">
+              This game's server prevents inline embedding for security reasons.
+              Click below to open it directly in a new tab instead.
+            </div>
+            <button class="error-btn" onclick="openExternal()">OPEN IN NEW TAB</button>
+          </div>
+          <iframe
+            id="game-iframe"
+            sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals allow-pointer-lock"
+            referrerpolicy="no-referrer"
+            allowfullscreen
+            allow="autoplay; fullscreen; gamepad; pointer-lock"
+          ></iframe>
+        </div>
+      </div>
+    </main>
+    <!-- Footer -->
+    <footer
+      class="w-full py-8 px-margin-desktop flex flex-col md:flex-row justify-between items-center gap-gutter bg-surface-container dark:bg-surface-container"
+    >
+      <div class="flex flex-col gap-2 items-center md:items-start">
+        <span class="font-headline-md text-headline-md font-bold text-primary"
+          >Yearnet</span
+        >
+        <p class="font-label-sm text-label-sm text-on-surface-variant">
+          © 2024 Yearnet. High-Performance Gaming.
+        </p>
+      </div>
+      <div class="flex gap-6">
+        <a
+          class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors"
+          href="#"
+          >Terms of Service</a
+        >
+        <a
+          class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors"
+          href="#"
+          >Privacy Policy</a
+        >
+        <a
+          class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors"
+          href="#"
+          >Support</a
+        >
+        <a
+          class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors"
+          href="#"
+          >Status</a
+        >
+      </div>
+    </footer>
+    <script>
+      // ===== Game Player Logic =====
+      let currentGameUrl = '';
+
+      function openGamePlayer(url, title) {
+        currentGameUrl = url;
+        const overlay = document.getElementById('game-overlay');
+        const iframe = document.getElementById('game-iframe');
+        const loader = document.getElementById('game-loader');
+        const error = document.getElementById('game-error');
+        const titleEl = document.getElementById('game-title');
+
+        // Reset states
+        titleEl.textContent = title || 'Game';
+        loader.classList.remove('hidden');
+        error.classList.remove('active');
+        iframe.src = '';
+
+        // Show overlay
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+
+        // Set iframe src with a small delay for smooth transition
+        setTimeout(() => {
+          iframe.src = url;
+        }, 100);
+
+        // Detect load success
+        iframe.onload = () => {
+          // Give it a moment then hide loader
+          setTimeout(() => {
+            loader.classList.add('hidden');
+          }, 600);
+
+          // Start a watchdog: if the iframe is blank / blocked, show error
+          // We can't read cross-origin content, but we can detect a completely
+          // empty frame via a secondary heuristic (timeout-based)
+          setTimeout(() => {
+            try {
+              // Attempting to access iframe.contentWindow.location will throw
+              // if cross-origin (which is fine — the game loaded). If we can
+              // access it AND the body is empty, that likely means it was blocked.
+              const doc = iframe.contentDocument || iframe.contentWindow.document;
+              if (doc && doc.body && doc.body.innerHTML.trim() === '') {
+                showEmbedError();
+              }
+            } catch (e) {
+              // Cross-origin — game loaded successfully, do nothing
+            }
+          }, 3000);
+        };
+
+        // Detect outright load failure
+        iframe.onerror = () => {
+          showEmbedError();
+        };
+      }
+
+      function showEmbedError() {
+        document.getElementById('game-loader').classList.add('hidden');
+        document.getElementById('game-error').classList.add('active');
+      }
+
+      function closeGamePlayer() {
+        const overlay = document.getElementById('game-overlay');
+        const iframe = document.getElementById('game-iframe');
+
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+
+        // Exit browser fullscreen if active
+        if (document.fullscreenElement) {
+          document.exitFullscreen();
+        }
+
+        // Kill iframe after transition
+        setTimeout(() => {
+          iframe.src = '';
+        }, 350);
+      }
+
+      function openExternal() {
+        if (currentGameUrl) {
+          window.open(currentGameUrl, '_blank');
+        }
+      }
+
+      function toggleFullscreen() {
+        const overlay = document.getElementById('game-overlay');
+        const icon = document.getElementById('fs-icon');
+        if (!document.fullscreenElement) {
+          overlay.requestFullscreen().then(() => {
+            icon.textContent = 'fullscreen_exit';
+          }).catch(() => {});
+        } else {
+          document.exitFullscreen().then(() => {
+            icon.textContent = 'fullscreen';
+          }).catch(() => {});
+        }
+      }
+
+      // Listen for fullscreen changes to keep icon in sync
+      document.addEventListener('fullscreenchange', () => {
+        const icon = document.getElementById('fs-icon');
+        if (icon) {
+          icon.textContent = document.fullscreenElement ? 'fullscreen_exit' : 'fullscreen';
+        }
+      });
+
+      // ESC key to close player
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          const overlay = document.getElementById('game-overlay');
+          if (overlay && overlay.classList.contains('active') && !document.fullscreenElement) {
+            closeGamePlayer();
+          }
+        }
+      });
+
+      // ===== Original micro-interactions =====
+      const playBtn = document.getElementById('play-btn');
+      if (playBtn) {
+        playBtn.addEventListener('mousemove', (e) => {
+          const rect = playBtn.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          playBtn.style.setProperty('--x', `${x}px`);
+          playBtn.style.setProperty('--y', `${y}px`);
+        });
+      }
+
+      // Simple scroll reveal for sections
+      const revealSections = () => {
+        const sections = document.querySelectorAll('section');
+        sections.forEach((sec) => {
+          const rect = sec.getBoundingClientRect();
+          if (rect.top < window.innerHeight * 0.8) {
+            sec.classList.add('opacity-100');
+            sec.style.transform = 'translateY(0)';
+          }
+        });
+      };
+      window.addEventListener('scroll', revealSections);
+    </script>
+  </body>
+</html>
